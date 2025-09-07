@@ -57,7 +57,7 @@ import { getData } from "@/lib/actions/transactions.actions";
 import { getAllPackages } from "@/lib/actions/packages.actions";
 import { Icon } from "@iconify/react";
 import Gooeyballs from "@iconify-icons/svg-spinners/gooey-balls-1"; // Correct import
- // Correct import
+// Correct import
 import Barsscale from "@iconify-icons/svg-spinners/bars-scale"; // Correct import
 import dynamic from "next/dynamic";
 import "react-quill/dist/quill.snow.css";
@@ -67,37 +67,38 @@ const ReactQuill = dynamic(() => import("react-quill"), {
   ssr: false,
   loading: () => (
     <div className="w-full min-h-[300px] h-full flex flex-col items-center justify-center">
-                                       <Icon icon={Gooeyballs} className="w-10 h-10 text-gray-500" />
-                                      
-                          </div>
+      <Icon icon={Gooeyballs} className="w-10 h-10 text-gray-500" />
+
+    </div>
   ),
 });
 interface Field {
   name: string;
   type:
-    | "text"
-    | "number"
-    | "money"
-    | "select"
-    | "radio"
-    | "checkbox"
-    | "textarea"
-    | "multi-select"
-    | "autocomplete"
-    | "phone"
-    | "year"
-    | "youtube-link"
-    | "price"
-    | "rentprice"
-    | "priceper"
-    | "bulkprice"
-    | "serviceprice"
-    | "delivery"
-    | "gps"
-    | "propertyarea"
-    | "virtualTourLink"
-    | "notify"
-    | "related-autocompletes";
+  | "text"
+  | "number"
+  | "money"
+  | "select"
+  | "radio"
+  | "checkbox"
+  | "textarea"
+  | "multi-select"
+  | "autocomplete"
+  | "phone"
+  | "year"
+  | "youtube-link"
+  | "price"
+  | "rentprice"
+  | "priceper"
+  | "pricequantity"
+  | "bulkprice"
+  | "serviceprice"
+  | "delivery"
+  | "gps"
+  | "propertyarea"
+  | "virtualTourLink"
+  | "notify"
+  | "related-autocompletes";
   required?: boolean;
   options?: string[];
 }
@@ -109,9 +110,9 @@ const generateDefaultValues = (fields: Field[]) => {
       defaults[field.name] = "";
     } else if (field.type === "number") {
       defaults[field.name] = 0;
-    }else if (field.type === "money") {
+    } else if (field.type === "money") {
       defaults[field.name] = 0;
-      
+
     } else if (field.type === "select") {
       defaults[field.name] = field.options?.[0] || "";
     } else if (field.type === "multi-select") {
@@ -129,7 +130,16 @@ const generateDefaultValues = (fields: Field[]) => {
     } else if (field.type === "rentprice") {
       defaults["price"] = 0;
       defaults["period"] = "";
-    } else if (field.type === "bulkprice") {
+    }
+    else if (field.type === "priceper") {
+      defaults["price"] = 0;
+      defaults["per"] = "Outright Price";
+    }
+    else if (field.type === "pricequantity") {
+      defaults["price"] = 0;
+      defaults["per"] = "per kg";
+    }
+    else if (field.type === "bulkprice") {
       defaults["price"] = 0;
       defaults["bulkprice"] = [];
     } else if (field.type === "serviceprice") {
@@ -139,12 +149,12 @@ const generateDefaultValues = (fields: Field[]) => {
     } else if (field.type === "gps") {
       defaults["gps"] = [];
     }
-   else if (field.type === "propertyarea") {
-    defaults["propertyarea"] = [];
-  }else if (field.type === "virtualTourLink") {
-    defaults["virtualTourLink"] = "";
-  }
-  
+    else if (field.type === "propertyarea") {
+      defaults["propertyarea"] = [];
+    } else if (field.type === "virtualTourLink") {
+      defaults["virtualTourLink"] = "";
+    }
+
     else if (field.type === "delivery") {
       defaults["delivery"] = [];
     } else if (field.type === "year") {
@@ -169,27 +179,27 @@ type Package = {
   features: string[];
   color: string;
   priority: number;
- 
+
 };
 type AdFormProps = {
   userId: string;
-  userImage:string;
- user: any;
+  userImage: string;
+  user: any;
   type: string;
   ad?: any;
   adId?: string;
-  categories:any;
+  categories: any;
   userName: string;
-  category?:string
-  subcategory?:string
+  category?: string
+  subcategory?: string
   packagesList: any;
   //listed: number;
   //priority: number;
   //expirationDate: Date;
-   handleOpenShop: (shopId:any) => void;
-  handleAdView?:(ad:any) => void;
-  handlePay?:(id:string) => void;
-  handleOpenTerms:() => void;
+  handleOpenShop: (shopId: any) => void;
+  handleAdView?: (ad: any) => void;
+  handlePay?: (id: string) => void;
+  handleOpenTerms: () => void;
 };
 
 const AdForm = ({
@@ -230,7 +240,7 @@ const AdForm = ({
   const [showGuide, setShowGuide] = useState(false);
   // const [formData, setFormData] = useState<Record<string, any>>([]);
   // const [selectedCategory, setSelectedCategory] = useState("");
-   const [showload, setShowLoad] = useState(true);
+  const [showload, setShowLoad] = useState(true);
 
   const [fields, setFields] = useState<Field[]>([]);
   //const [selectedAutoComplete, setSelectedAutoComplete] = useState("");
@@ -252,12 +262,12 @@ const AdForm = ({
   const [showPopup, setShowPopup] = useState(false);
   const modules = {
     toolbar: [
-     // [{ header: "1" }, { header: "2" }, { font: [] }],
+      // [{ header: "1" }, { header: "2" }, { font: [] }],
       [{ list: "ordered" }, { list: "bullet" }],
       ["bold", "italic", "underline", "strike", "blockquote"],
-     // [{ color: [] }, { background: [] }], // Color options
+      // [{ color: [] }, { background: [] }], // Color options
       [{ align: [] }],
-     // ["link", "image"],
+      // ["link", "image"],
       ["clean"],
     ],
   };
@@ -304,54 +314,54 @@ const AdForm = ({
   const handleSaveArea = () => {
     setShowPopupArea(false); // Close the popup after saving
   };
- 
+
   const [selectedCategoryCommand, setSelectedCategoryCommand] = useState<
     string[]
   >([]);
- 
-   
-    const [countryCode, setCountryCode] = useState("+254"); // Default country code
-    const [phoneNumber, setPhoneNumber] = useState("");
-    useEffect(() => {
-      const getCategory = async () => {
-        try {
-       
-          const uniqueCategories = categories.reduce((acc: any[], current: any) => {
-            if (
-              !acc.find((item) => item.category.name === current.category.name)
-            ) {
-              acc.push(current);
-            }
-            return acc;
-          }, []);
-  
-          setSelectedCategoryCommand(uniqueCategories);
-  
-          if (type === "Update") {
+
+
+  const [countryCode, setCountryCode] = useState("+254"); // Default country code
+  const [phoneNumber, setPhoneNumber] = useState("");
+  useEffect(() => {
+    const getCategory = async () => {
+      try {
+
+        const uniqueCategories = categories.reduce((acc: any[], current: any) => {
+          if (
+            !acc.find((item) => item.category.name === current.category.name)
+          ) {
+            acc.push(current);
+          }
+          return acc;
+        }, []);
+
+        setSelectedCategoryCommand(uniqueCategories);
+
+        if (type === "Update") {
+          const selectedData: any = categories.find(
+            (category: any) =>
+              category.category.name === selectedCategory &&
+              category.subcategory === selectedSubCategory
+          );
+          // Update fields if a match is found
+          setSelectedCategoryId(selectedData.category._id)
+          setFields(selectedData ? selectedData.fields : []);
+          setFormData(ad.data);
+
+          const cleanNumber = ad.data.phone.startsWith('+') ? ad.data.phone.slice(1) : ad.data.phone;
+          const countryCode = cleanNumber.slice(0, 3);
+          const localNumber = cleanNumber.slice(3);
+          setCountryCode('+' + countryCode)
+          setPhoneNumber(localNumber)
+          setFormData({
+            ...formData,
+            phone: ad.data.phone,
+          });
+        } else {
+          if (subcategory && category) {
+            setSelectedCategory(category);
+            setSelectedSubCategory(subcategory);
             const selectedData: any = categories.find(
-              (category: any) =>
-                category.category.name === selectedCategory &&
-                category.subcategory === selectedSubCategory
-            );
-            // Update fields if a match is found
-             setSelectedCategoryId(selectedData.category._id)
-            setFields(selectedData ? selectedData.fields : []);
-            setFormData(ad.data);
-          
-            const cleanNumber = ad.data.phone.startsWith('+') ? ad.data.phone.slice(1) : ad.data.phone;
-            const countryCode = cleanNumber.slice(0, 3);
-            const localNumber = cleanNumber.slice(3);
-            setCountryCode('+'+countryCode)
-            setPhoneNumber(localNumber)
-            setFormData({
-              ...formData,
-              phone: ad.data.phone,
-            });
-          }else{
-if(subcategory && category){
-  setSelectedCategory(category);
-  setSelectedSubCategory(subcategory);
-  const selectedData: any = categories.find(
               (ca: any) =>
                 ca.category.name === category &&
                 ca.subcategory === subcategory
@@ -360,68 +370,70 @@ if(subcategory && category){
             setSelectedCategoryId(selectedData.category._id)
             setSelectedSubCategoryId(selectedData._id);
             setFields(selectedData ? selectedData.fields : []);
-            if(category==='Buyer Requests'){
-    
-     setFormData({
+            if (category === 'Buyer Requests') {
+
+              setFormData({
                 ...formData,
                 category: category,
                 subcategory: subcategory,
                 imageUrls: [userImage],
               });
-            
-          }else{
-             setFormData({
+
+            } else {
+              setFormData({
                 ...formData,
                 category: category,
                 subcategory: subcategory,
               });
-          }}}
-          setShowLoad(false)
-        } catch (error) {
-          setShowLoad(false)
-          console.error("Failed to fetch categories", error);
+            }
+          }
         }
-      };
-      getCategory();
-    }, []);
+        setShowLoad(false)
+      } catch (error) {
+        setShowLoad(false)
+        console.error("Failed to fetch categories", error);
+      }
+    };
+    getCategory();
+  }, []);
 
-   const [activePackage, setActivePackage] = useState<Package | null>(null);
-    const [activeButton, setActiveButton] = useState(0);
-    const [activeButtonTitle, setActiveButtonTitle] = useState("1 week");
-    const [priceInput, setPriceInput] = useState("");
-    const [periodInput, setPeriodInput] = useState("");
-    const [subscription, setSubscription] = useState<any>(null);
-    const [daysRemaining, setDaysRemaining] = useState(0);
-    const [remainingAds, setRemainingAds] = useState(0);
-    const [listed, setListed] = useState(0);
-    const [Plan, setplan] = useState("Free");
-    const [PlanId, setplanId] = useState(FreePackId);
-    const [Priority_, setpriority] = useState(0);
-    const [Adstatus_, setadstatus] = useState("Pending");
-    const [color, setColor] = useState("#000000");
-    const [loadingSub, setLoadingSub] = useState<boolean>(true);
-    const [ExpirationDate_, setexpirationDate] = useState(new Date());
-   
-useEffect(() => {
-    if(type === "Create"){
-        const fetchData =() => {
-          try {
-           
-           
-            const subscriptionData = user;
-            const packages = packagesList;
-          
-            if (subscriptionData) {
-             // setSubscription(subscriptionData);
-              const listedAds = subscriptionData.ads || 0;
-              setListed(listedAds);
-              if (subscriptionData.currentpack && !Array.isArray(subscriptionData.currentpack)) { 
+  const [activePackage, setActivePackage] = useState<Package | null>(null);
+  const [activeButton, setActiveButton] = useState(0);
+  const [activeButtonTitle, setActiveButtonTitle] = useState("1 week");
+  const [priceInput, setPriceInput] = useState("");
+  const [periodInput, setPeriodInput] = useState("");
+  const [subscription, setSubscription] = useState<any>(null);
+  const [daysRemaining, setDaysRemaining] = useState(0);
+  const [remainingAds, setRemainingAds] = useState(0);
+  const [listed, setListed] = useState(0);
+  const [Plan, setplan] = useState("Free");
+  const [PlanId, setplanId] = useState(FreePackId);
+  const [Priority_, setpriority] = useState(0);
+  const [Adstatus_, setadstatus] = useState("Pending");
+  const [color, setColor] = useState("#000000");
+  const [loadingSub, setLoadingSub] = useState<boolean>(true);
+  const [ExpirationDate_, setexpirationDate] = useState(new Date());
+
+  useEffect(() => {
+    if (type === "Create") {
+      const fetchData = () => {
+        try {
+
+
+          const subscriptionData = user;
+          const packages = packagesList;
+
+          if (subscriptionData) {
+            // setSubscription(subscriptionData);
+            const listedAds = subscriptionData.ads || 0;
+            setListed(listedAds);
+            if (subscriptionData.currentpack && !Array.isArray(subscriptionData.currentpack)) {
               setRemainingAds(subscriptionData.currentpack.list - listedAds);
               setpriority(subscriptionData.currentpack.priority);
               setColor(subscriptionData.currentpack.color);
               setplan(subscriptionData.currentpack.name);
               setplanId(subscriptionData.transaction?.planId || FreePackId);
-             // console.log(subscriptionData);
+              // console.log(subscriptionData);
               const createdAtDate = new Date(subscriptionData.transaction?.createdAt || new Date());
               const periodDays = parseInt(subscriptionData.transaction?.period) || 0;
               const expiryDate = new Date(createdAtDate.getTime() + periodDays * 24 * 60 * 60 * 1000);
@@ -431,43 +443,43 @@ useEffect(() => {
               setDaysRemaining(remainingDays);
               setadstatus((remainingDays > 0 && (subscriptionData.currentpack.list - listedAds) > 0) || ((subscriptionData.currentpack.list - listedAds) > 0 && subscriptionData.currentpack.name === "Free") ? "Active" : "Pending");
               setActivePackage(
-              packages.length > 0
-                ? subscriptionData.currentpack.list - listedAds > 0 && subscriptionData.currentpack.name === "Free"
-                  ? packages[0]
-                  : packages[1]
-                : null
-            );
-   
+                packages.length > 0
+                  ? subscriptionData.currentpack.list - listedAds > 0 && subscriptionData.currentpack.name === "Free"
+                    ? packages[0]
+                    : packages[1]
+                  : null
+              );
+
 
             } else {
               console.warn("No current package found for the user.");
             }
-            }
-          } catch (error) {
-            console.error("Failed to fetch data", error);
-          } finally {
-         
-       
           }
-        };
-        fetchData();
+        } catch (error) {
+          console.error("Failed to fetch data", error);
+        } finally {
+
+
+        }
+      };
+      fetchData();
     }
-    }, []);
+  }, []);
 
   const validateForm = async () => {
     console.log("start: ");
     const validationSchema = createValidationSchema(fields, selectedCategory);
-    console.log("validationSchema: " + JSON.stringify(validationSchema) );
+    console.log("validationSchema: " + JSON.stringify(validationSchema));
 
     const result = validationSchema.safeParse(formData);
-     console.log("result:" + JSON.stringify(result));
+    console.log("result:" + JSON.stringify(result));
     if (!result.success) {
       const errors = result.error.errors.reduce((acc: any, err: any) => {
         acc[err.path[0]] = err.message;
-          console.log("acc:" + JSON.stringify(acc));
+        console.log("acc:" + JSON.stringify(acc));
         return acc;
       }, {});
-       console.log("faild:" + JSON.stringify(errors));
+      console.log("faild:" + JSON.stringify(errors));
       setFormErrors(errors);
       return false;
     }
@@ -496,29 +508,29 @@ useEffect(() => {
   const handleInputChange = (field: string, value: any) => {
     setFormData({ ...formData, [field]: value });
   };
-const handleInputChangeMoney = (field: string, value: string) => {
-  const numericValue = value.replace(/,/g, "");
-  setFormData((prev) => ({ ...prev, [field]: numericValue }));
-};
-  const handleInputCategoryChange = (field: string, value: any, _id:string) => {
+  const handleInputChangeMoney = (field: string, value: string) => {
+    const numericValue = value.replace(/,/g, "");
+    setFormData((prev) => ({ ...prev, [field]: numericValue }));
+  };
+  const handleInputCategoryChange = (field: string, value: any, _id: string) => {
     setSelectedCategory(value);
     setSelectedCategoryId(_id);
     setSelectedSubCategory("");
     setSelectedSubCategoryId("");
     setFields([]);
-   
-     if(value ==='Buyer Requests'){
-    
-     setFormData({
-                ...formData,
-                  [field]: value,
-                imageUrls: [userImage],
-              });
-    }else{
-       setFormData({
-      ...formData,
-      [field]: value,
-    });
+
+    if (value === 'Buyer Requests') {
+
+      setFormData({
+        ...formData,
+        [field]: value,
+        imageUrls: [userImage],
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [field]: value,
+      });
     }
   };
   const handleInputSubCategoryChange = (
@@ -541,24 +553,24 @@ const handleInputChangeMoney = (field: string, value: string) => {
     setFormData(defaults);
     setFormErrors({});
     setFiles([]);
-   
-    if(user.phone && type === "Create"){
+
+    if (user.phone && type === "Create") {
       const cleanNumber = user.phone.startsWith('+') ? user.phone.slice(1) : user.phone;
       const countryCode = cleanNumber.slice(0, 3);
       const localNumber = cleanNumber.slice(3);
-      setCountryCode('+'+countryCode)
+      setCountryCode('+' + countryCode)
       setPhoneNumber(localNumber)
       setFormData({
         ...formData, [field]: value,
         phone: user.phone,
       });
-    }else{
+    } else {
       setFormData({
         ...formData,
         [field]: value,
       });
     }
-   
+
   };
 
   const handleInputAutoCompleteChange = (field: string, value: any) => {
@@ -593,7 +605,7 @@ const handleInputChangeMoney = (field: string, value: string) => {
   };
 
   const handleInputOnChange = (field: string, value: any) => {
-   // console.log(value);
+    // console.log(value);
     setFormData((prevData) => ({ ...prevData, [field]: value }));
   };
   const handlePackageOnChange = (
@@ -612,7 +624,7 @@ const handleInputChangeMoney = (field: string, value: string) => {
     setplan(Plan);
     setPriceInput(priceInput);
     setPeriodInput(periodInput);
-    
+
   };
   function isValidKenyanPhoneNumber(phone: string): boolean {
     const kenyanPhoneRegex = /^(?:\+254|254|0)?(7\d{8})$/;
@@ -624,91 +636,91 @@ const handleInputChangeMoney = (field: string, value: string) => {
     try {
       if (type === "Create") {
         const isValid = await validateForm();
-        if (!isValid){ 
+        if (!isValid) {
           toast({
             variant: "destructive",
-            title:  "Missing fields",
+            title: "Missing fields",
             description: "Ensure all required fields are completed.",
             duration: 5000,
           });
-          
+
           return;
         }
 
-const phone= countryCode + removeLeadingZero(phoneNumber);
-if(!isValidKenyanPhoneNumber(phone)){
-  toast({
-    variant: "destructive",
-    title: "Invalid Phone",
-    description: "Invalid Phone Number.",
-    duration: 5000,
-  });
+        const phone = countryCode + removeLeadingZero(phoneNumber);
+        if (!isValidKenyanPhoneNumber(phone)) {
+          toast({
+            variant: "destructive",
+            title: "Invalid Phone",
+            description: "Invalid Phone Number.",
+            duration: 5000,
+          });
 
-  return
-}
+          return
+        }
 
-try {
-  if (
-    selectedCategory === "Buyer Requests" &&
-    selectedSubCategory.trim().toLowerCase() === "loan request"
-  ) {
-    
-    const newAd = await createLoan({
-      loan: {
-        userId: userId,
-        adId: null,
-        loanType: formData["Loan Type"]?.toString() || "",
-        LoanAmount: parseCurrencyToNumber(formData["Loan Amount"]?.toString() || 0),
-        monthlyIncome: parseCurrencyToNumber(formData["Monthly Income"]?.toString() || 0),
-        deposit: parseCurrencyToNumber(formData["Deposit Amount"]?.toString() || 0),
-        loanterm: formData["Preferred Loan Term"]?.toString() || "",
-        employmentStatus: formData["Employment Status"]?.toString() || "",
-        messageComments: formData["Comment"]?.toString() || "",
-        status: "Pending",
-      },
-      path: "/create",
-    });
+        try {
+          if (
+            selectedCategory === "Buyer Requests" &&
+            selectedSubCategory.trim().toLowerCase() === "loan request"
+          ) {
 
-    setFormData(defaults);
-    setFiles([]);
+            const newAd = await createLoan({
+              loan: {
+                userId: userId,
+                adId: null,
+                loanType: formData["Loan Type"]?.toString() || "",
+                LoanAmount: parseCurrencyToNumber(formData["Loan Amount"]?.toString() || 0),
+                monthlyIncome: parseCurrencyToNumber(formData["Monthly Income"]?.toString() || 0),
+                deposit: parseCurrencyToNumber(formData["Deposit Amount"]?.toString() || 0),
+                loanterm: formData["Preferred Loan Term"]?.toString() || "",
+                employmentStatus: formData["Employment Status"]?.toString() || "",
+                messageComments: formData["Comment"]?.toString() || "",
+                status: "Pending",
+              },
+              path: "/create",
+            });
 
-    if (handleOpenShop) {
-      handleOpenShop(user.user);
-    }
+            setFormData(defaults);
+            setFiles([]);
 
-    toast({
-      title: "Submitted",
-      description: "Loan request submitted successfully.",
-      duration: 5000,
-      className: "bg-[#30AF5B] text-white",
-    });
+            if (handleOpenShop) {
+              handleOpenShop(user.user);
+            }
 
-    return;
-  }
-} catch (error) {
-  console.error("Loan submission failed:", error);
-  toast({
-    title: "Submission Failed",
-    description: "Please check your form data and try again.",
-    duration: 5000,
-    variant: "destructive",
-  });
-}
+            toast({
+              title: "Submitted",
+              description: "Loan request submitted successfully.",
+              duration: 5000,
+              className: "bg-[#30AF5B] text-white",
+            });
+
+            return;
+          }
+        } catch (error) {
+          console.error("Loan submission failed:", error);
+          toast({
+            title: "Submission Failed",
+            description: "Please check your form data and try again.",
+            duration: 5000,
+            variant: "destructive",
+          });
+        }
 
 
-      
+
         const uploadedUrls = await uploadFiles();
 
         if (!uploadedUrls) return;
 
-       const baseData = {
-  ...formData,
-  imageUrls: uploadedUrls,
-  price: formData["price"] ? parseCurrencyToNumber(formData["price"].toString()) : 0,
-  phone,
-};
+        const baseData = {
+          ...formData,
+          imageUrls: uploadedUrls,
+          price: formData["price"] ? parseCurrencyToNumber(formData["price"].toString()) : 0,
+          phone,
+        };
 
-const finalData = baseData;
+        const finalData = baseData;
         const pricePack = Number(priceInput);
         const newAd = await createData({
           userId: userId,
@@ -723,9 +735,9 @@ const finalData = baseData;
           periodPack: periodInput,
           path: "/create",
         });
-        if(!user.phone){
-          await updateUserPhone(userId,phone);
-          }
+        if (!user.phone) {
+          await updateUserPhone(userId, phone);
+        }
         setFormData(defaults);
         setFiles([]);
         setSelectedYear("");
@@ -745,7 +757,7 @@ const finalData = baseData;
             if (handleAdView) {
               handleAdView(newAd);
             }
-          
+
           }
         }
         // console.log("Data submitted successfully:", finalData);
@@ -755,7 +767,7 @@ const finalData = baseData;
         if (!isValid) return;
 
         const phone = countryCode + removeLeadingZero(phoneNumber);
-        if(!isValidKenyanPhoneNumber(phone)){
+        if (!isValidKenyanPhoneNumber(phone)) {
           toast({
             title: "Invalid Phone",
             description: "Invalid Phone Number.",
@@ -770,11 +782,11 @@ const finalData = baseData;
         const finalImageUrls =
           uploadedUrls.length > 0 ? uploadedUrls : formData.imageUrls;
 
-        
+
         const finalData = {
           ...formData,
           imageUrls: finalImageUrls,
-         price: formData["price"] ? parseCurrencyToNumber(formData["price"].toString()) : 0,
+          price: formData["price"] ? parseCurrencyToNumber(formData["price"].toString()) : 0,
           phone: phone,
         };
         const _id = ad._id;
@@ -792,10 +804,10 @@ const finalData = baseData;
           className: "bg-[#30AF5B] text-white",
         });
         if (updatedAd && handleAdView) {
-         handleAdView(updatedAd);
-       
+          handleAdView(updatedAd);
+
         }
-       
+
       }
     } catch (error) {
       console.error("Validation or submission failed", error);
@@ -813,10 +825,10 @@ const finalData = baseData;
       _id: category._id,
     }))
     .filter(
-      (value:any, index:any, self:any) =>
+      (value: any, index: any, self: any) =>
         index ===
         self.findIndex(
-          (c:any) => c.subcategory === value.subcategory && c._id === value._id
+          (c: any) => c.subcategory === value.subcategory && c._id === value._id
         )
     ); // Get unique subcategory and _id pairs
 
@@ -830,10 +842,10 @@ const finalData = baseData;
       maximumFractionDigits: 0,
     }).format(numberValue);
   };
- const parseCurrencyToNumber = (value: string): number => {
-  const cleaned = value.replace(/[^0-9.-]+/g, ""); // removes anything that's not a digit, dot, or minus sign
-  return Number(cleaned);
-};
+  const parseCurrencyToNumber = (value: string): number => {
+    const cleaned = value.replace(/[^0-9.-]+/g, ""); // removes anything that's not a digit, dot, or minus sign
+    return Number(cleaned);
+  };
   function capitalizeFirstLetter(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
@@ -854,7 +866,7 @@ const finalData = baseData;
   for (let year = currentYear; year >= 1960; year--) {
     years.push(year.toString());
   }
- 
+
   const formatPhoneNumber = (input: any) => {
     // Remove all non-digit characters
     const cleaned = input.replace(/\D/g, "");
@@ -901,12 +913,12 @@ const finalData = baseData;
     string | null
   >(null);
   const constituencies =
-  REGIONS_WITH_AREA.find(
+    REGIONS_WITH_AREA.find(
       (county) => county.region === selectedCounty
     )?.area || [];
 
   const handleCounty = (field: string, value: any) => {
-    
+
     setSelectedCounty(value);
     setFormData({ ...formData, [field]: value, area: "" });
     setSelectedConstituency(null);
@@ -966,866 +978,134 @@ const finalData = baseData;
   }
   return (
     <>
-     {showload ? (<><div className="w-full p-5 h-full flex flex-col items-center justify-center">
-                        <Image
-                          src="/assets/icons/loading2.gif"
-                          alt="loading"
-                          width={40}
-                          height={40}
-                          unoptimized
-                        />
-                      </div></>):(<>
-      <div className="p-0 lg:p-2">
-        <section className="bg-grey-50 bg-dotted-pattern bg-cover bg-center mb-2 mt-2 rounded-sm">
-          <div className="wrapper flex items-center justify-center sm:justify-between">
-            <div className="lg:flex-1 p-1 ml-2 mr-5 mb-0 lg:mb-0">
-              <div className="text-lg font-bold breadcrumbs">
-                <h3 className="font-bold text-[25px] text-center sm:text-left">
-                  {type} Ad
-                </h3>
+      {showload ? (<><div className="w-full p-5 h-full flex flex-col items-center justify-center">
+        <Image
+          src="/assets/icons/loading2.gif"
+          alt="loading"
+          width={40}
+          height={40}
+          unoptimized
+        />
+      </div></>) : (<>
+        <div className="p-0 lg:p-2">
+          <section className="bg-grey-50 bg-dotted-pattern bg-cover bg-center mb-2 mt-2 rounded-sm">
+            <div className="wrapper flex items-center justify-center sm:justify-between">
+              <div className="lg:flex-1 p-1 ml-2 mr-5 mb-0 lg:mb-0">
+                <div className="text-lg font-bold breadcrumbs">
+                  <h3 className="font-bold text-[25px] text-center sm:text-left">
+                    {type} Ad
+                  </h3>
+                </div>
               </div>
             </div>
-          </div>
-          
-        </section>
-        <div className="flex flex-col w-full mt-2">
-          <div className="grid grid-cols-1 lg:grid-cols-2 flex gap-3 flex-col">
-            <div className="flex">
-              <CategorySelect
-                selected={selectedCategory}
-                data={selectedCategoryCommand}
-                onChange={handleInputCategoryChange}
-              />
-              {formErrors["category"] && (
-                <p className="text-red-500 text-sm">{formErrors["category"]}</p>
-              )}
-            </div>
-            <div className="flex">
-              <SubCategorySelect
-                selected={selectedSubCategory}
-                data={selectedCategory ? filteredSubcategories : []}
-                onChange={handleInputSubCategoryChange}
-              />
-              {formErrors["subcategory"] && (
-                <p className="text-red-500 text-sm">
-                  {formErrors["subcategory"]}
-                </p>
-              )}
-            </div>
-          </div>
-          {selectedSubCategory && (
-            <>
-              <div className="grid grid-cols-1 lg:grid-cols-2 flex gap-3 mt-3 flex-col">
-                <div>
-                  <AutoComplete
-                    data={REGIONS_WITH_AREA.map(
-                      (county) => county.region
-                    )}
-                    name={"region"}
-                    onChange={handleCounty}
-                    selected={formData["region"] || ""}
-                  />
-                  {formErrors["region"] && (
-                    <p className="text-red-500 text-sm">
-                      {formErrors["region"]}
-                    </p>
-                  )}
-                </div>
 
-                <div>
-                  <AutoComplete
-                    data={constituencies ?? []}
-                    name={"area"}
-                    onChange={handleConstituency}
-                    selected={formData["area"] || ""}
-                  />
-                  {formErrors["area"] && (
-                    <p className="text-red-500 text-sm">{formErrors["area"]}</p>
-                  )}
-                </div>
+          </section>
+          <div className="flex flex-col w-full mt-2">
+            <div className="grid grid-cols-1 lg:grid-cols-2 flex gap-3 flex-col">
+              <div className="flex">
+                <CategorySelect
+                  selected={selectedCategory}
+                  data={selectedCategoryCommand}
+                  onChange={handleInputCategoryChange}
+                />
+                {formErrors["category"] && (
+                  <p className="text-red-500 text-sm">{formErrors["category"]}</p>
+                )}
               </div>
-            </>
-          )}
-          {selectedSubCategory &&  selectedCategory !== "Buyer Requests" && (
-            <>
-              <div className="flex bg-white w-full mt-3 gap-0 border dark:bg-[#2D3236] py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 items-center">
-                <FileUploader
-                      onFieldChange={(urls) => handleInputChange("imageUrls", urls)}
-                      imageUrls={formData["imageUrls"] || []} // Ensure this is an array
-                      setFiles={setFiles}
-                      adId={adId || ""}
-                      userName={userName} 
-                      category={selectedCategory}/>
-                {formErrors["imageUrls"] && (
+              <div className="flex">
+                <SubCategorySelect
+                  selected={selectedSubCategory}
+                  data={selectedCategory ? filteredSubcategories : []}
+                  onChange={handleInputSubCategoryChange}
+                />
+                {formErrors["subcategory"] && (
                   <p className="text-red-500 text-sm">
-                    {formErrors["imageUrls"]}
+                    {formErrors["subcategory"]}
                   </p>
                 )}
               </div>
-            </>
-          )}
-
-        
-          {fields.map((field: any) => (
-            <div key={field.name} className="flex gap-3 items-center mt-3">
-              {field.type === "checkbox" && (
-                <div className="mt-3 mb-3">
-                  {capitalizeFirstLetter(field.name.replace("-", " "))}
-                </div>
-              )}
-              {field.type === "related-autocompletes" && (
-                <MakeModelAutocomplete
-                  plainTextData={field.options}
-                  make={formData["make"] || ""}
-                  formErrorsmake={formErrors["make"]}
-                  model={formData["model"] || ""}
-                  formErrorsmodel={formErrors["model"]}
-                  onChange={handleInputAutoCompleteChange}
-                />
-              )}
-              {field.type === "text" && (
-                <TextField
-                  required={field.required}
-                  id={field.name}
-                  label={capitalizeFirstLetter(field.name.replace("-", " "))}
-                  value={formData[field.name] || ""}
-                  onChange={(e) =>
-                    handleInputChange(field.name, e.target.value)
-                  }
-                  variant="outlined"
-                  placeholder={`Enter ${field.name.replace("-", " ")}`}
-                  InputProps={{
-                    classes: {
-                      root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
-                      notchedOutline: "border-gray-300 dark:border-gray-600",
-                      focused: "",
-                    },
-                  }}
-                  InputLabelProps={{
-                    classes: {
-                      root: "text-gray-500 dark:text-gray-400",
-                      focused: "text-emerald-500 dark:text-emerald-400",
-                    },
-                  }}
-                  className="w-full"
-                />
-              )}
-              {field.type === "youtube-link" && (
-                <TextField
-                  required={field.required}
-                  id={field.type}
-                  label={"YouTube link"}
-                  value={formData[field.type] || ""}
-                  onChange={(e) =>
-                    handleInputChange(field.type, e.target.value)
-                  }
-                  variant="outlined"
-                  placeholder={`Enter YouTube link`}
-                  InputProps={{
-                    classes: {
-                      root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
-                      notchedOutline: "border-gray-300 dark:border-gray-600",
-                      focused: "",
-                    },
-                  }}
-                  InputLabelProps={{
-                    classes: {
-                      root: "text-gray-500 dark:text-gray-400",
-                      focused: "text-emerald-500 dark:text-emerald-400",
-                    },
-                  }}
-                  className="w-full"
-                />
-              )}
-  {field.type === "virtualTourLink" && (
-                <TextField
-                  required={field.required}
-                  id={field.type}
-                  label={"3D Virtual Property Tour Link"}
-                  value={formData[field.type] || ""}
-                  onChange={(e) =>
-                    handleInputChange(field.type, e.target.value)
-                  }
-                  variant="outlined"
-                  placeholder={`Enter 3D Virtual Property Tour Link`}
-                  InputProps={{
-                    classes: {
-                      root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
-                      notchedOutline: "border-gray-300 dark:border-gray-600",
-                      focused: "",
-                    },
-                  }}
-                  InputLabelProps={{
-                    classes: {
-                      root: "text-gray-500 dark:text-gray-400",
-                      focused: "text-emerald-500 dark:text-emerald-400",
-                    },
-                  }}
-                  className="w-full"
-                />
-              )}
-
-
-              {field.type === "price" && (
-                <div className="flex flex-col w-full">
-                  <TextField
-                    required={field.required}
-                    id={field.name}
-                    label={capitalizeFirstLetter(field.name)}
-                    value={formatToCurrency(formData[field.name] ?? 0)}
-                    onChange={(e) =>
-                      handleInputChangeMoney(field.name, e.target.value)
-                    }
-                    variant="outlined"
-                    placeholder={`Enter ${field.name.replace("-", " ")}`}
-                    InputProps={{
-                      classes: {
-                        root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
-                        notchedOutline: "border-gray-300 dark:border-gray-600",
-                        focused: "",
-                      },
-                    }}
-                    InputLabelProps={{
-                      classes: {
-                        root: "text-gray-500 dark:text-gray-400",
-                        focused: "text-emerald-500 dark:text-emerald-400",
-                      },
-                    }}
-                    className="w-full"
-                  />
-                  <div className="mt-3 bg-white border-gray-300 cursor-pointer dark:border-gray-600 dark:bg-[#2D3236] dark:text-gray-100 text-sm py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 w-full">
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-4">
-                    Are you open to negotiation?
-                  </h3>
-                  <div className="flex items-center space-x-4 mt-2">
-                    {["Yes", "No", "Not sure"].map((option) => (
-                      <label
-                        key={option}
-                        className="flex items-center space-x-2 cursor-pointer"
-                      >
-                        <input
-                          type="radio"
-                          name="negotiable"
-                          value={option.toLowerCase()}
-                          checked={
-                            formData["negotiable"]
-                              ? formData["negotiable"] === option.toLowerCase()
-                              : option.toLowerCase() === "not sure"
-                          } // Default to "not sure"
-                          onChange={() => {
-                            handleInputChange(
-                              "negotiable",
-                              option.toLowerCase()
-                            );
-                          }}
-                          className="hidden peer"
-                        />
-                        <div className="w-5 h-5 border-2 border-gray-400 rounded-full peer-checked:border-emerald-500 peer-checked:ring-2 peer-checked:ring-emerald-400 flex items-center justify-center">
-                          {(formData["negotiable"]
-                            ? formData["negotiable"] === option.toLowerCase()
-                            : option.toLowerCase() === "not sure") && (
-                            <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
-                          )}
-                        </div>
-                        <span
-                          className={
-                            (
-                              formData["negotiable"]
-                                ? formData["negotiable"] ===
-                                  option.toLowerCase()
-                                : option.toLowerCase() === "not sure"
-                            )
-                              ? "text-emerald-500 font-medium"
-                              : "text-gray-600 dark:text-gray-400"
-                          }
-                        >
-                          {option}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                  </div>
-                </div>
-              )}
-              {field.type === "rentprice" && (
-                <div className="flex flex-col w-full">
-                  <div className="flex w-full gap-1">
-                    <TextField
-                      required={field.required}
-                      id={"price"}
-                      label={capitalizeFirstLetter("price")}
-                      value={formatToCurrency(formData["price"] ?? 0)}
-                      onChange={(e) =>
-                        handleInputChangeMoney("price", e.target.value)
-                      }
-                      variant="outlined"
-                      placeholder={`Enter Price`}
-                      InputProps={{
-                        classes: {
-                          root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
-                          notchedOutline:
-                            "border-gray-300 dark:border-gray-600",
-                          focused: "",
-                        },
-                      }}
-                      InputLabelProps={{
-                        classes: {
-                          root: "text-gray-500 dark:text-gray-400",
-                          focused: "text-emerald-500 dark:text-emerald-400",
-                        },
-                      }}
-                      className="w-full"
+            </div>
+            {selectedSubCategory && (
+              <>
+                <div className="grid grid-cols-1 lg:grid-cols-2 flex gap-3 mt-3 flex-col">
+                  <div>
+                    <AutoComplete
+                      data={REGIONS_WITH_AREA.map(
+                        (county) => county.region
+                      )}
+                      name={"region"}
+                      onChange={handleCounty}
+                      selected={formData["region"] || ""}
                     />
-                    <select
-                      className="bg-white border-gray-300 cursor-pointer dark:border-gray-600 dark:bg-[#2D3236] dark:text-gray-100 text-sm py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 w-[140px] lg:w-[200px]"
-                      value={formData["period"] || ""}
-                      onChange={(e) =>
-                        handleInputChange("period", e.target.value)
-                      }
-                    >
-                      <option value="per month" className="dark:text-gray-400">
-                      per month
-                      </option>
-                      <option value="per day">per day</option>
-                      <option value="per month">per month</option>
-                      <option value="per quarter-year">per quarter-year</option>
-                      <option value="per half-year">per half-year</option>
-                      <option value="per year">per year</option>
-                    </select>
-                  </div>
-                  <div className="mt-3 bg-white border-gray-300 cursor-pointer dark:border-gray-600 dark:bg-[#2D3236] dark:text-gray-100 text-sm py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 w-full">
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-4">
-                    Are you open to negotiation?
-                  </h3>
-                  <div className="flex items-center space-x-4 mt-2">
-                    {["Yes", "No", "Not sure"].map((option) => (
-                      <label
-                        key={option}
-                        className="flex items-center space-x-2 cursor-pointer"
-                      >
-                        <input
-                          type="radio"
-                          name="negotiable"
-                          value={option.toLowerCase()}
-                          checked={
-                            formData["negotiable"]
-                              ? formData["negotiable"] === option.toLowerCase()
-                              : option.toLowerCase() === "not sure"
-                          } // Default to "not sure"
-                          onChange={() => {
-                            handleInputChange(
-                              "negotiable",
-                              option.toLowerCase()
-                            );
-                          }}
-                          className="hidden peer"
-                        />
-                        <div className="w-5 h-5 border-2 border-gray-400 rounded-full peer-checked:border-emerald-500 peer-checked:ring-2 peer-checked:ring-emerald-400 flex items-center justify-center">
-                          {(formData["negotiable"]
-                            ? formData["negotiable"] === option.toLowerCase()
-                            : option.toLowerCase() === "not sure") && (
-                            <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
-                          )}
-                        </div>
-                        <span
-                          className={
-                            (
-                              formData["negotiable"]
-                                ? formData["negotiable"] ===
-                                  option.toLowerCase()
-                                : option.toLowerCase() === "not sure"
-                            )
-                              ? "text-emerald-500 font-medium"
-                              : "text-gray-600 dark:text-gray-400"
-                          }
-                        >
-                          {option}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                  </div>
-                </div>
-              )}
-              {field.type === "priceper" && (
-                <div className="flex flex-col w-full">
-                  <div className="flex w-full gap-1">
-                    <TextField
-                      required={field.required}
-                      id={"price"}
-                      label={capitalizeFirstLetter("price")}
-                      value={formatToCurrency(formData["price"] ?? 0)}
-                      onChange={(e) =>
-                        handleInputChangeMoney("price", e.target.value)
-                      }
-                      variant="outlined"
-                      placeholder={`Enter Price`}
-                      InputProps={{
-                        classes: {
-                          root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
-                          notchedOutline:
-                            "border-gray-300 dark:border-gray-600",
-                          focused: "",
-                        },
-                      }}
-                      InputLabelProps={{
-                        classes: {
-                          root: "text-gray-500 dark:text-gray-400",
-                          focused: "text-emerald-500 dark:text-emerald-400",
-                        },
-                      }}
-                      className="w-full"
-                    />
-                    <select
-                      className="bg-white border-gray-300 cursor-pointer dark:border-gray-600 dark:bg-[#2D3236] dark:text-gray-100 text-sm py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 w-[140px] lg:w-[200px]"
-                      value={formData["per"] || "Outright Price"}
-                      onChange={(e) => handleInputChange("per", e.target.value)}
-                    >
-                      <option
-                        value="Outright Price"
-                        className="dark:text-gray-400"
-                      >
-                        Outright Price...
-                      </option>
-                      <option value="per acre">per acre</option>
-                      <option value="per plot">per plot</option>
-                      <option value="per SqF">per SqF</option>
-                    </select>
-                  </div>
-                  <div className="mt-3 bg-white border-gray-300 cursor-pointer dark:border-gray-600 dark:bg-[#2D3236] dark:text-gray-100 text-sm py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 w-full">
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-4">
-                    Are you open to negotiation?
-                  </h3>
-                  <div className="flex items-center space-x-4 mt-2">
-                    {["Yes", "No", "Not sure"].map((option) => (
-                      <label
-                        key={option}
-                        className="flex items-center space-x-2 cursor-pointer"
-                      >
-                        <input
-                          type="radio"
-                          name="negotiable"
-                          value={option.toLowerCase()}
-                          checked={
-                            formData["negotiable"]
-                              ? formData["negotiable"] === option.toLowerCase()
-                              : option.toLowerCase() === "not sure"
-                          } // Default to "not sure"
-                          onChange={() => {
-                            handleInputChange(
-                              "negotiable",
-                              option.toLowerCase()
-                            );
-                          }}
-                          className="hidden peer"
-                        />
-                        <div className="w-5 h-5 border-2 border-gray-400 rounded-full peer-checked:border-emerald-500 peer-checked:ring-2 peer-checked:ring-emerald-400 flex items-center justify-center">
-                          {(formData["negotiable"]
-                            ? formData["negotiable"] === option.toLowerCase()
-                            : option.toLowerCase() === "not sure") && (
-                            <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
-                          )}
-                        </div>
-                        <span
-                          className={
-                            (
-                              formData["negotiable"]
-                                ? formData["negotiable"] ===
-                                  option.toLowerCase()
-                                : option.toLowerCase() === "not sure"
-                            )
-                              ? "text-emerald-500 font-medium"
-                              : "text-gray-600 dark:text-gray-400"
-                          }
-                        >
-                          {option}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                  </div>
-                </div>
-              )}
-              {field.type === "bulkprice" && (
-                <div className="flex flex-col w-full">
-                  <div className="flex w-full gap-1">
-                    <TextField
-                      required={field.required}
-                      id={"price"}
-                      label={capitalizeFirstLetter("price")}
-                      value={formatToCurrency(formData["price"] ?? 0)}
-                      onChange={(e) =>
-                        handleInputChangeMoney("price", e.target.value)
-                      }
-                      variant="outlined"
-                      placeholder={`Enter Price`}
-                      InputProps={{
-                        classes: {
-                          root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
-                          notchedOutline:
-                            "border-gray-300 dark:border-gray-600",
-                          focused: "",
-                        },
-                      }}
-                      InputLabelProps={{
-                        classes: {
-                          root: "text-gray-500 dark:text-gray-400",
-                          focused: "text-emerald-500 dark:text-emerald-400",
-                        },
-                      }}
-                      className="w-full"
-                    />
-
-                    <button
-                      onClick={handleOpenPopupBulk}
-                      className="py-3 text-sm lg:text-base w-[200px] px-1 rounded-sm bg-emerald-600 text-white hover:bg-emerald-700">
-                      <AddOutlinedIcon /> Add Bulk Price
-                    </button>
-
-                    {showPopupBulk && (
-                      
-                          <BulkPriceManager
-                            selected={formData["bulkprice"] || []}
-                            name={"bulkprice"}
-                            onChange={handleInputAutoCompleteChange}
-                            handleClosePopupBulk={handleClosePopupBulk}
-                          />
-                      
+                    {formErrors["region"] && (
+                      <p className="text-red-500 text-sm">
+                        {formErrors["region"]}
+                      </p>
                     )}
                   </div>
 
-                  <div className="mt-3 bg-white border-gray-300 cursor-pointer dark:border-gray-600 dark:bg-[#2D3236] dark:text-gray-100 text-sm py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 w-full">
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-4">
-                    Are you open to negotiation?
-                  </h3>
-                  <div className="flex items-center space-x-4 mt-2">
-                    {["Yes", "No", "Not sure"].map((option) => (
-                      <label
-                        key={option}
-                        className="flex items-center space-x-2 cursor-pointer"
-                      >
-                        <input
-                          type="radio"
-                          name="negotiable"
-                          value={option.toLowerCase()}
-                          checked={
-                            formData["negotiable"]
-                              ? formData["negotiable"] === option.toLowerCase()
-                              : option.toLowerCase() === "not sure"
-                          } // Default to "not sure"
-                          onChange={() => {
-                            handleInputChange(
-                              "negotiable",
-                              option.toLowerCase()
-                            );
-                          }}
-                          className="hidden peer"
-                        />
-                        <div className="w-5 h-5 border-2 border-gray-400 rounded-full peer-checked:border-emerald-500 peer-checked:ring-2 peer-checked:ring-emerald-400 flex items-center justify-center">
-                          {(formData["negotiable"]
-                            ? formData["negotiable"] === option.toLowerCase()
-                            : option.toLowerCase() === "not sure") && (
-                            <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
-                          )}
-                        </div>
-                        <span
-                          className={
-                            (
-                              formData["negotiable"]
-                                ? formData["negotiable"] ===
-                                  option.toLowerCase()
-                                : option.toLowerCase() === "not sure"
-                            )
-                              ? "text-emerald-500 font-medium"
-                              : "text-gray-600 dark:text-gray-400"
-                          }
-                        >
-                          {option}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
+                  <div>
+                    <AutoComplete
+                      data={constituencies ?? []}
+                      name={"area"}
+                      onChange={handleConstituency}
+                      selected={formData["area"] || ""}
+                    />
+                    {formErrors["area"] && (
+                      <p className="text-red-500 text-sm">{formErrors["area"]}</p>
+                    )}
                   </div>
                 </div>
-              )}
+              </>
+            )}
+            {selectedSubCategory && selectedCategory !== "Buyer Requests" && (
+              <>
+                <div className="flex bg-white w-full mt-3 gap-0 border dark:bg-[#2D3236] py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 items-center">
+                  <FileUploader
+                    onFieldChange={(urls) => handleInputChange("imageUrls", urls)}
+                    imageUrls={formData["imageUrls"] || []} // Ensure this is an array
+                    setFiles={setFiles}
+                    adId={adId || ""}
+                    userName={userName}
+                    category={selectedCategory} />
+                  {formErrors["imageUrls"] && (
+                    <p className="text-red-500 text-sm">
+                      {formErrors["imageUrls"]}
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
 
-              {field.type === "serviceprice" && (
-                <div className="flex w-full gap-1">
-                  <PriceInput
-                    priceType_={formData["contact"] || "specify"}
-                    unit_={formData["unit"] || "per service"}
-                    negotiable_={formData["negotiable"] || "not sure"}
-                    onChange={handleInputAutoCompleteChange}
-                    price_={formData["price"] || ""}
-                  />
-                </div>
-              )}
-              {field.type === "number" && (
-                <>
-                  <TextField
-                    required={field.required}
-                    id={field.name}
-                    label={capitalizeFirstLetter(field.name.replace("-", " "))}
-                    value={formData[field.name] || 0}
-                    onChange={(e) =>
-                      handleInputChange(field.name, e.target.value)
-                    }
-                    variant="outlined"
-                    placeholder={`Enter ${field.name.replace("-", " ")}`}
-                    InputProps={{
-                      classes: {
-                        root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
-                        notchedOutline: "border-gray-300 dark:border-gray-600",
-                        focused: "",
-                      },
-                    }}
-                    InputLabelProps={{
-                      classes: {
-                        root: "text-gray-500 dark:text-gray-400",
-                        focused: "text-emerald-500 dark:text-emerald-400",
-                      },
-                    }}
-                    className="w-full"
-                  />
-                </>
-              )}
-                 {field.type === "money" && (
-                <>
-                  <TextField
-                    required={field.required}
-                    id={field.name}
-                    label={capitalizeFirstLetter(field.name.replace("-", " "))}
-                    value={formatToCurrency(formData[field.name] ?? 0)}
-                    onChange={(e) =>
-                      handleInputChangeMoney(field.name, e.target.value)
-                    }
-                    variant="outlined"
-                    placeholder={`Enter ${field.name.replace("-", " ")}`}
-                    InputProps={{
-                      classes: {
-                        root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
-                        notchedOutline: "border-gray-300 dark:border-gray-600",
-                        focused: "",
-                      },
-                    }}
-                    InputLabelProps={{
-                      classes: {
-                        root: "text-gray-500 dark:text-gray-400",
-                        focused: "text-emerald-500 dark:text-emerald-400",
-                      },
-                    }}
-                    className="w-full"
-                  />
-                </>
-              )}
-              {field.type === "select" && (
-                <FormControl
-                  fullWidth
-                  variant="outlined"
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      "& fieldset": {
-                        borderColor: "#4B5563", // Light mode border
-                      },
-                      "&:hover fieldset": {
-                        borderColor: "#2563EB", // Border on hover
-                      },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#2563EB", // Border when focused
-                      },
-                    },
-                  }}
-                  className="rounded-md dark:border-gray-600"
-                >
-                  <InputLabel className="font-medium text-gray-500 dark:text-gray-400">
+
+            {fields.map((field: any) => (
+              <div key={field.name} className="flex gap-3 items-center mt-3">
+                {field.type === "checkbox" && (
+                  <div className="mt-3 mb-3">
                     {capitalizeFirstLetter(field.name.replace("-", " "))}
-                    {field.required && <>*</>}
-                  </InputLabel>
-                  <Select
+                  </div>
+                )}
+                {field.type === "related-autocompletes" && (
+                  <MakeModelAutocomplete
+                    plainTextData={field.options}
+                    make={formData["make"] || ""}
+                    formErrorsmake={formErrors["make"]}
+                    model={formData["model"] || ""}
+                    formErrorsmodel={formErrors["model"]}
+                    onChange={handleInputAutoCompleteChange}
+                  />
+                )}
+                {field.type === "text" && (
+                  <TextField
+                    required={field.required}
+                    id={field.name}
+                    label={capitalizeFirstLetter(field.name.replace("-", " "))}
                     value={formData[field.name] || ""}
                     onChange={(e) =>
                       handleInputChange(field.name, e.target.value)
                     }
-                    required={field.required}
-                    label={capitalizeFirstLetter(field.name.replace("-", " "))}
-                    className="dark:text-gray-100 dark:bg-[#2D3236] bg-white"
-                  >
-                    {field.options?.map((option: any) => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-              {field.type === "year" && (
-                <AutoComplete
-                  data={years}
-                  name={field.name}
-                  onChange={handleInputYearChange}
-                  selected={formData[field.name] || ""}
-                />
-              )}
-              {field.type === "autocomplete" && (
-                <AutoComplete
-                  data={field.options}
-                  name={field.name}
-                  onChange={handleInputAutoCompleteChange}
-                  selected={formData[field.name] || ""}
-                />
-              )}
-              {field.type === "multi-select" && (
-                <div className="w-full flex py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 flex-wrap gap-2 dark:bg-[#2D3236] bg-white">
-                  <Multiselect
-                    features={field.options}
-                    name={field.name}
-                    selectedFeatures={formData[field.name] || []}
-                    onChange={handleCheckboxChange}
-                  />
-                </div>
-              )}
-
-              {field.type === "radio" && (
-                <div className="w-full flex py-2 px-3 rounded-sm border border-gray-300 dark:border-gray-600 flex-wrap gap-2 dark:bg-[#2D3236] bg-white">
-                  <FormControl>
-                    <FormLabel className="text-gray-800 dark:text-gray-200">
-                      {capitalizeFirstLetter(field.name.replace("-", " "))}
-                    </FormLabel>
-                    <RadioGroup
-                      name={field.name}
-                      value={formData[field.name]} // Default to the first option
-                      //value={formData[field.name] || field.options[0]} // Default to the first option
-                      onChange={(e) =>
-                        handleInputChange(field.name, e.target.value)
-                      }
-                      className="space-y-0"
-                    >
-                      {field.options?.map((option: any, index: number) => (
-                        <FormControlLabel
-                          key={index}
-                          value={option}
-                          control={
-                            <Radio
-                              sx={{
-                                color: "gray", // Unchecked color
-                                "&.Mui-checked": {
-                                  color: "emerald", // Checked color
-                                },
-                              }}
-                            />
-                          }
-                          label={option}
-                          className="text-gray-800 dark:text-gray-200"
-                        />
-                      ))}
-                    </RadioGroup>
-                  </FormControl>
-                </div>
-              )}
-              {field.type === "checkbox" &&
-                field.options?.map((option: any, index: number) => (
-                  <label key={index}>
-                    <input
-                      type="checkbox"
-                      name={field.name}
-                      value={option}
-                      onChange={(e) =>
-                        handleInputChange(field.name, e.target.value)
-                      }
-                    />
-                    {option}
-                  </label>
-                ))}
-              {field.type === "textarea" && (
-  <div style={{ width: "100%", height: "300px", borderRadius: "8px", border:"1px", overflow: "hidden" }}>
-                <ReactQuill
-  value={formData[field.name] || ""}
-   theme="snow"
-  onChange={(value) => handleInputChange(field.name, value)}
-  
-  modules={modules} // Pass the custom toolbar modules
-  placeholder={`Enter ${capitalizeFirstLetter(field.name.replace("-", " "))}*`}
-  style={{ height: "100%", width: "100%", border: "0px", borderRadius: "8px" }}
-/>
-</div>
-)}
-
-              {field.type === "phone" && (
-                <div className="flex w-full gap-1">
-                  <select
-                    className="border-gray-300 dark:border-gray-600 dark:bg-[#2D3236] dark:text-gray-100 text-sm py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 w-[140px] lg:w-[200px]"
-                    value={countryCode}
-                    onChange={handleCountryCodeChange}
-                  >
-                    <option value="+254">Kenya (+254)</option>
-                    <option value="+213">Algeria (+213)</option>
-                    <option value="+244">Angola (+244)</option>
-                    <option value="+229">Benin (+229)</option>
-                    <option value="+267">Botswana (+267)</option>
-                    <option value="+226">Burkina Faso (+226)</option>
-                    <option value="+257">Burundi (+257)</option>
-                    <option value="+237">Cameroon (+237)</option>
-                    <option value="+238">Cape Verde (+238)</option>
-                    <option value="+236">
-                      Central African Republic (+236)
-                    </option>
-                    <option value="+235">Chad (+235)</option>
-                    <option value="+269">Comoros (+269)</option>
-                    <option value="+243">
-                      Democratic Republic of the Congo (+243)
-                    </option>
-                    <option value="+253">Djibouti (+253)</option>
-                    <option value="+20">Egypt (+20)</option>
-                    <option value="+240">Equatorial Guinea (+240)</option>
-                    <option value="+291">Eritrea (+291)</option>
-                    <option value="+268">Eswatini (+268)</option>
-                    <option value="+251">Ethiopia (+251)</option>
-                    <option value="+241">Gabon (+241)</option>
-                    <option value="+220">Gambia (+220)</option>
-                    <option value="+233">Ghana (+233)</option>
-                    <option value="+224">Guinea (+224)</option>
-                    <option value="+245">Guinea-Bissau (+245)</option>
-                    <option value="+225">Ivory Coast (+225)</option>
-                    <option value="+266">Lesotho (+266)</option>
-                    <option value="+231">Liberia (+231)</option>
-                    <option value="+218">Libya (+218)</option>
-                    <option value="+261">Madagascar (+261)</option>
-                    <option value="+265">Malawi (+265)</option>
-                    <option value="+223">Mali (+223)</option>
-                    <option value="+222">Mauritania (+222)</option>
-                    <option value="+230">Mauritius (+230)</option>
-                    <option value="+212">Morocco (+212)</option>
-                    <option value="+258">Mozambique (+258)</option>
-                    <option value="+264">Namibia (+264)</option>
-                    <option value="+227">Niger (+227)</option>
-                    <option value="+234">Nigeria (+234)</option>
-                    <option value="+242">Republic of the Congo (+242)</option>
-                    <option value="+250">Rwanda (+250)</option>
-                    <option value="+239">Sao Tome and Principe (+239)</option>
-                    <option value="+221">Senegal (+221)</option>
-                    <option value="+248">Seychelles (+248)</option>
-                    <option value="+232">Sierra Leone (+232)</option>
-                    <option value="+252">Somalia (+252)</option>
-                    <option value="+27">South Africa (+27)</option>
-                    <option value="+211">South Sudan (+211)</option>
-                    <option value="+249">Sudan (+249)</option>
-                    <option value="+255">Tanzania (+255)</option>
-                    <option value="+228">Togo (+228)</option>
-                    <option value="+216">Tunisia (+216)</option>
-                    <option value="+256">Uganda (+256)</option>
-                    <option value="+260">Zambia (+260)</option>
-                    <option value="+263">Zimbabwe (+263)</option>
-                  </select>
-
-                  <TextField
-                    required={field.required}
-                    id={field.name}
-                    label={capitalizeFirstLetter(field.name)}
-                    type="tel"
-                    value={phoneNumber}
-                    onChange={handleInputChangePhone}
                     variant="outlined"
-                    placeholder={`Enter ${field.name}`}
+                    placeholder={`Enter ${field.name.replace("-", " ")}`}
                     InputProps={{
                       classes: {
                         root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
@@ -1841,75 +1121,914 @@ const finalData = baseData;
                     }}
                     className="w-full"
                   />
-                </div>
-              )}
+                )}
+                {field.type === "youtube-link" && (
+                  <TextField
+                    required={field.required}
+                    id={field.type}
+                    label={"YouTube link"}
+                    value={formData[field.type] || ""}
+                    onChange={(e) =>
+                      handleInputChange(field.type, e.target.value)
+                    }
+                    variant="outlined"
+                    placeholder={`Enter YouTube link`}
+                    InputProps={{
+                      classes: {
+                        root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
+                        notchedOutline: "border-gray-300 dark:border-gray-600",
+                        focused: "",
+                      },
+                    }}
+                    InputLabelProps={{
+                      classes: {
+                        root: "text-gray-500 dark:text-gray-400",
+                        focused: "text-emerald-500 dark:text-emerald-400",
+                      },
+                    }}
+                    className="w-full"
+                  />
+                )}
+                {field.type === "virtualTourLink" && (
+                  <TextField
+                    required={field.required}
+                    id={field.type}
+                    label={"3D Virtual Property Tour Link"}
+                    value={formData[field.type] || ""}
+                    onChange={(e) =>
+                      handleInputChange(field.type, e.target.value)
+                    }
+                    variant="outlined"
+                    placeholder={`Enter 3D Virtual Property Tour Link`}
+                    InputProps={{
+                      classes: {
+                        root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
+                        notchedOutline: "border-gray-300 dark:border-gray-600",
+                        focused: "",
+                      },
+                    }}
+                    InputLabelProps={{
+                      classes: {
+                        root: "text-gray-500 dark:text-gray-400",
+                        focused: "text-emerald-500 dark:text-emerald-400",
+                      },
+                    }}
+                    className="w-full"
+                  />
+                )}
 
-              {field.type === "delivery" && (
-                <div className="flex flex-col w-full gap-1">
-                   <button
+
+                {field.type === "price" && (
+                  <div className="flex flex-col w-full">
+                    <TextField
+                      required={field.required}
+                      id={field.name}
+                      label={capitalizeFirstLetter(field.name)}
+                      value={formatToCurrency(formData[field.name] ?? 0)}
+                      onChange={(e) =>
+                        handleInputChangeMoney(field.name, e.target.value)
+                      }
+                      variant="outlined"
+                      placeholder={`Enter ${field.name.replace("-", " ")}`}
+                      InputProps={{
+                        classes: {
+                          root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
+                          notchedOutline: "border-gray-300 dark:border-gray-600",
+                          focused: "",
+                        },
+                      }}
+                      InputLabelProps={{
+                        classes: {
+                          root: "text-gray-500 dark:text-gray-400",
+                          focused: "text-emerald-500 dark:text-emerald-400",
+                        },
+                      }}
+                      className="w-full"
+                    />
+                    <div className="mt-3 bg-white border-gray-300 cursor-pointer dark:border-gray-600 dark:bg-[#2D3236] dark:text-gray-100 text-sm py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 w-full">
+                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-4">
+                        Are you open to negotiation?
+                      </h3>
+                      <div className="flex items-center space-x-4 mt-2">
+                        {["Yes", "No", "Not sure"].map((option) => (
+                          <label
+                            key={option}
+                            className="flex items-center space-x-2 cursor-pointer"
+                          >
+                            <input
+                              type="radio"
+                              name="negotiable"
+                              value={option.toLowerCase()}
+                              checked={
+                                formData["negotiable"]
+                                  ? formData["negotiable"] === option.toLowerCase()
+                                  : option.toLowerCase() === "not sure"
+                              } // Default to "not sure"
+                              onChange={() => {
+                                handleInputChange(
+                                  "negotiable",
+                                  option.toLowerCase()
+                                );
+                              }}
+                              className="hidden peer"
+                            />
+                            <div className="w-5 h-5 border-2 border-gray-400 rounded-full peer-checked:border-emerald-500 peer-checked:ring-2 peer-checked:ring-emerald-400 flex items-center justify-center">
+                              {(formData["negotiable"]
+                                ? formData["negotiable"] === option.toLowerCase()
+                                : option.toLowerCase() === "not sure") && (
+                                  <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
+                                )}
+                            </div>
+                            <span
+                              className={
+                                (
+                                  formData["negotiable"]
+                                    ? formData["negotiable"] ===
+                                    option.toLowerCase()
+                                    : option.toLowerCase() === "not sure"
+                                )
+                                  ? "text-emerald-500 font-medium"
+                                  : "text-gray-600 dark:text-gray-400"
+                              }
+                            >
+                              {option}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {field.type === "rentprice" && (
+                  <div className="flex flex-col w-full">
+                    <div className="flex w-full gap-1">
+                      <TextField
+                        required={field.required}
+                        id={"price"}
+                        label={capitalizeFirstLetter("price")}
+                        value={formatToCurrency(formData["price"] ?? 0)}
+                        onChange={(e) =>
+                          handleInputChangeMoney("price", e.target.value)
+                        }
+                        variant="outlined"
+                        placeholder={`Enter Price`}
+                        InputProps={{
+                          classes: {
+                            root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
+                            notchedOutline:
+                              "border-gray-300 dark:border-gray-600",
+                            focused: "",
+                          },
+                        }}
+                        InputLabelProps={{
+                          classes: {
+                            root: "text-gray-500 dark:text-gray-400",
+                            focused: "text-emerald-500 dark:text-emerald-400",
+                          },
+                        }}
+                        className="w-full"
+                      />
+                      <select
+                        className="bg-white border-gray-300 cursor-pointer dark:border-gray-600 dark:bg-[#2D3236] dark:text-gray-100 text-sm py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 w-[140px] lg:w-[200px]"
+                        value={formData["period"] || ""}
+                        onChange={(e) =>
+                          handleInputChange("period", e.target.value)
+                        }
+                      >
+                        <option value="per month" className="dark:text-gray-400">
+                          per month
+                        </option>
+                        <option value="per day">per day</option>
+                        <option value="per month">per month</option>
+                        <option value="per quarter-year">per quarter-year</option>
+                        <option value="per half-year">per half-year</option>
+                        <option value="per year">per year</option>
+                      </select>
+                    </div>
+                    <div className="mt-3 bg-white border-gray-300 cursor-pointer dark:border-gray-600 dark:bg-[#2D3236] dark:text-gray-100 text-sm py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 w-full">
+                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-4">
+                        Are you open to negotiation?
+                      </h3>
+                      <div className="flex items-center space-x-4 mt-2">
+                        {["Yes", "No", "Not sure"].map((option) => (
+                          <label
+                            key={option}
+                            className="flex items-center space-x-2 cursor-pointer"
+                          >
+                            <input
+                              type="radio"
+                              name="negotiable"
+                              value={option.toLowerCase()}
+                              checked={
+                                formData["negotiable"]
+                                  ? formData["negotiable"] === option.toLowerCase()
+                                  : option.toLowerCase() === "not sure"
+                              } // Default to "not sure"
+                              onChange={() => {
+                                handleInputChange(
+                                  "negotiable",
+                                  option.toLowerCase()
+                                );
+                              }}
+                              className="hidden peer"
+                            />
+                            <div className="w-5 h-5 border-2 border-gray-400 rounded-full peer-checked:border-emerald-500 peer-checked:ring-2 peer-checked:ring-emerald-400 flex items-center justify-center">
+                              {(formData["negotiable"]
+                                ? formData["negotiable"] === option.toLowerCase()
+                                : option.toLowerCase() === "not sure") && (
+                                  <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
+                                )}
+                            </div>
+                            <span
+                              className={
+                                (
+                                  formData["negotiable"]
+                                    ? formData["negotiable"] ===
+                                    option.toLowerCase()
+                                    : option.toLowerCase() === "not sure"
+                                )
+                                  ? "text-emerald-500 font-medium"
+                                  : "text-gray-600 dark:text-gray-400"
+                              }
+                            >
+                              {option}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {field.type === "pricequantity" && (
+                  <div className="flex flex-col w-full">
+                    <div className="flex w-full gap-1">
+                      <TextField
+                        required={field.required}
+                        id={"price"}
+                        label={capitalizeFirstLetter("price")}
+                        value={formatToCurrency(formData["price"] ?? 0)}
+                        onChange={(e) =>
+                          handleInputChangeMoney("price", e.target.value)
+                        }
+                        variant="outlined"
+                        placeholder={`Enter Price`}
+                        InputProps={{
+                          classes: {
+                            root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
+                            notchedOutline:
+                              "border-gray-300 dark:border-gray-600",
+                            focused: "",
+                          },
+                        }}
+                        InputLabelProps={{
+                          classes: {
+                            root: "text-gray-500 dark:text-gray-400",
+                            focused: "text-emerald-500 dark:text-emerald-400",
+                          },
+                        }}
+                        className="w-full"
+                      />
+                      <select
+                        className="bg-white border-gray-300 cursor-pointer dark:border-gray-600 dark:bg-[#2D3236] dark:text-gray-100 text-sm py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 w-[140px] lg:w-[200px]"
+                        value={formData["per"] || ""}
+                        onChange={(e) =>
+                          handleInputChange("per", e.target.value)
+                        }
+                      >
+                        <option value="per kg" className="dark:text-gray-400">
+                          per kg
+                        </option>
+                        <option value="per gram">per gram</option>
+                        <option value="per bundle">per bundle</option>
+                        <option value="per stalk">per stalk</option>
+                        <option value="per leaf">per leaf</option>
+                        <option value="per packet">per packet</option>
+                        <option value="per bunch">per bunch</option>
+                        <option value="per piece">per piece</option>
+                        <option value="per jar">per jar</option>
+                        <option value="per bag">per bag</option>
+                        <option value="per box">per box</option>
+                        <option value="per bottle">per bottle</option>
+
+                      </select>
+                    </div>
+                    <div className="mt-3 bg-white border-gray-300 cursor-pointer dark:border-gray-600 dark:bg-[#2D3236] dark:text-gray-100 text-sm py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 w-full">
+                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-4">
+                        Are you open to negotiation?
+                      </h3>
+                      <div className="flex items-center space-x-4 mt-2">
+                        {["Yes", "No", "Not sure"].map((option) => (
+                          <label
+                            key={option}
+                            className="flex items-center space-x-2 cursor-pointer"
+                          >
+                            <input
+                              type="radio"
+                              name="negotiable"
+                              value={option.toLowerCase()}
+                              checked={
+                                formData["negotiable"]
+                                  ? formData["negotiable"] === option.toLowerCase()
+                                  : option.toLowerCase() === "not sure"
+                              } // Default to "not sure"
+                              onChange={() => {
+                                handleInputChange(
+                                  "negotiable",
+                                  option.toLowerCase()
+                                );
+                              }}
+                              className="hidden peer"
+                            />
+                            <div className="w-5 h-5 border-2 border-gray-400 rounded-full peer-checked:border-emerald-500 peer-checked:ring-2 peer-checked:ring-emerald-400 flex items-center justify-center">
+                              {(formData["negotiable"]
+                                ? formData["negotiable"] === option.toLowerCase()
+                                : option.toLowerCase() === "not sure") && (
+                                  <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
+                                )}
+                            </div>
+                            <span
+                              className={
+                                (
+                                  formData["negotiable"]
+                                    ? formData["negotiable"] ===
+                                    option.toLowerCase()
+                                    : option.toLowerCase() === "not sure"
+                                )
+                                  ? "text-emerald-500 font-medium"
+                                  : "text-gray-600 dark:text-gray-400"
+                              }
+                            >
+                              {option}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {field.type === "priceper" && (
+                  <div className="flex flex-col w-full">
+                    <div className="flex w-full gap-1">
+                      <TextField
+                        required={field.required}
+                        id={"price"}
+                        label={capitalizeFirstLetter("price")}
+                        value={formatToCurrency(formData["price"] ?? 0)}
+                        onChange={(e) =>
+                          handleInputChangeMoney("price", e.target.value)
+                        }
+                        variant="outlined"
+                        placeholder={`Enter Price`}
+                        InputProps={{
+                          classes: {
+                            root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
+                            notchedOutline:
+                              "border-gray-300 dark:border-gray-600",
+                            focused: "",
+                          },
+                        }}
+                        InputLabelProps={{
+                          classes: {
+                            root: "text-gray-500 dark:text-gray-400",
+                            focused: "text-emerald-500 dark:text-emerald-400",
+                          },
+                        }}
+                        className="w-full"
+                      />
+                      <select
+                        className="bg-white border-gray-300 cursor-pointer dark:border-gray-600 dark:bg-[#2D3236] dark:text-gray-100 text-sm py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 w-[140px] lg:w-[200px]"
+                        value={formData["per"] || "Outright Price"}
+                        onChange={(e) => handleInputChange("per", e.target.value)}
+                      >
+                        <option
+                          value="Outright Price"
+                          className="dark:text-gray-400"
+                        >
+                          Outright Price...
+                        </option>
+                        <option value="per acre">per acre</option>
+                        <option value="per plot">per plot</option>
+                        <option value="per SqF">per SqF</option>
+                      </select>
+                    </div>
+                    <div className="mt-3 bg-white border-gray-300 cursor-pointer dark:border-gray-600 dark:bg-[#2D3236] dark:text-gray-100 text-sm py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 w-full">
+                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-4">
+                        Are you open to negotiation?
+                      </h3>
+                      <div className="flex items-center space-x-4 mt-2">
+                        {["Yes", "No", "Not sure"].map((option) => (
+                          <label
+                            key={option}
+                            className="flex items-center space-x-2 cursor-pointer"
+                          >
+                            <input
+                              type="radio"
+                              name="negotiable"
+                              value={option.toLowerCase()}
+                              checked={
+                                formData["negotiable"]
+                                  ? formData["negotiable"] === option.toLowerCase()
+                                  : option.toLowerCase() === "not sure"
+                              } // Default to "not sure"
+                              onChange={() => {
+                                handleInputChange(
+                                  "negotiable",
+                                  option.toLowerCase()
+                                );
+                              }}
+                              className="hidden peer"
+                            />
+                            <div className="w-5 h-5 border-2 border-gray-400 rounded-full peer-checked:border-emerald-500 peer-checked:ring-2 peer-checked:ring-emerald-400 flex items-center justify-center">
+                              {(formData["negotiable"]
+                                ? formData["negotiable"] === option.toLowerCase()
+                                : option.toLowerCase() === "not sure") && (
+                                  <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
+                                )}
+                            </div>
+                            <span
+                              className={
+                                (
+                                  formData["negotiable"]
+                                    ? formData["negotiable"] ===
+                                    option.toLowerCase()
+                                    : option.toLowerCase() === "not sure"
+                                )
+                                  ? "text-emerald-500 font-medium"
+                                  : "text-gray-600 dark:text-gray-400"
+                              }
+                            >
+                              {option}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {field.type === "bulkprice" && (
+                  <div className="flex flex-col w-full">
+                    <div className="flex w-full gap-1">
+                      <TextField
+                        required={field.required}
+                        id={"price"}
+                        label={capitalizeFirstLetter("price")}
+                        value={formatToCurrency(formData["price"] ?? 0)}
+                        onChange={(e) =>
+                          handleInputChangeMoney("price", e.target.value)
+                        }
+                        variant="outlined"
+                        placeholder={`Enter Price`}
+                        InputProps={{
+                          classes: {
+                            root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
+                            notchedOutline:
+                              "border-gray-300 dark:border-gray-600",
+                            focused: "",
+                          },
+                        }}
+                        InputLabelProps={{
+                          classes: {
+                            root: "text-gray-500 dark:text-gray-400",
+                            focused: "text-emerald-500 dark:text-emerald-400",
+                          },
+                        }}
+                        className="w-full"
+                      />
+
+                      <button
+                        onClick={handleOpenPopupBulk}
+                        className="py-3 text-sm lg:text-base w-[200px] px-1 rounded-sm bg-emerald-600 text-white hover:bg-emerald-700">
+                        <AddOutlinedIcon /> Add Bulk Price
+                      </button>
+
+                      {showPopupBulk && (
+
+                        <BulkPriceManager
+                          selected={formData["bulkprice"] || []}
+                          name={"bulkprice"}
+                          onChange={handleInputAutoCompleteChange}
+                          handleClosePopupBulk={handleClosePopupBulk}
+                        />
+
+                      )}
+                    </div>
+
+                    <div className="mt-3 bg-white border-gray-300 cursor-pointer dark:border-gray-600 dark:bg-[#2D3236] dark:text-gray-100 text-sm py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 w-full">
+                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-4">
+                        Are you open to negotiation?
+                      </h3>
+                      <div className="flex items-center space-x-4 mt-2">
+                        {["Yes", "No", "Not sure"].map((option) => (
+                          <label
+                            key={option}
+                            className="flex items-center space-x-2 cursor-pointer"
+                          >
+                            <input
+                              type="radio"
+                              name="negotiable"
+                              value={option.toLowerCase()}
+                              checked={
+                                formData["negotiable"]
+                                  ? formData["negotiable"] === option.toLowerCase()
+                                  : option.toLowerCase() === "not sure"
+                              } // Default to "not sure"
+                              onChange={() => {
+                                handleInputChange(
+                                  "negotiable",
+                                  option.toLowerCase()
+                                );
+                              }}
+                              className="hidden peer"
+                            />
+                            <div className="w-5 h-5 border-2 border-gray-400 rounded-full peer-checked:border-emerald-500 peer-checked:ring-2 peer-checked:ring-emerald-400 flex items-center justify-center">
+                              {(formData["negotiable"]
+                                ? formData["negotiable"] === option.toLowerCase()
+                                : option.toLowerCase() === "not sure") && (
+                                  <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
+                                )}
+                            </div>
+                            <span
+                              className={
+                                (
+                                  formData["negotiable"]
+                                    ? formData["negotiable"] ===
+                                    option.toLowerCase()
+                                    : option.toLowerCase() === "not sure"
+                                )
+                                  ? "text-emerald-500 font-medium"
+                                  : "text-gray-600 dark:text-gray-400"
+                              }
+                            >
+                              {option}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {field.type === "serviceprice" && (
+                  <div className="flex w-full gap-1">
+                    <PriceInput
+                      priceType_={formData["contact"] || "specify"}
+                      unit_={formData["unit"] || "per service"}
+                      negotiable_={formData["negotiable"] || "not sure"}
+                      onChange={handleInputAutoCompleteChange}
+                      price_={formData["price"] || ""}
+                    />
+                  </div>
+                )}
+                {field.type === "number" && (
+                  <>
+                    <TextField
+                      required={field.required}
+                      id={field.name}
+                      label={capitalizeFirstLetter(field.name.replace("-", " "))}
+                      value={formData[field.name] || 0}
+                      onChange={(e) =>
+                        handleInputChange(field.name, e.target.value)
+                      }
+                      variant="outlined"
+                      placeholder={`Enter ${field.name.replace("-", " ")}`}
+                      InputProps={{
+                        classes: {
+                          root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
+                          notchedOutline: "border-gray-300 dark:border-gray-600",
+                          focused: "",
+                        },
+                      }}
+                      InputLabelProps={{
+                        classes: {
+                          root: "text-gray-500 dark:text-gray-400",
+                          focused: "text-emerald-500 dark:text-emerald-400",
+                        },
+                      }}
+                      className="w-full"
+                    />
+                  </>
+                )}
+                {field.type === "money" && (
+                  <>
+                    <TextField
+                      required={field.required}
+                      id={field.name}
+                      label={capitalizeFirstLetter(field.name.replace("-", " "))}
+                      value={formatToCurrency(formData[field.name] ?? 0)}
+                      onChange={(e) =>
+                        handleInputChangeMoney(field.name, e.target.value)
+                      }
+                      variant="outlined"
+                      placeholder={`Enter ${field.name.replace("-", " ")}`}
+                      InputProps={{
+                        classes: {
+                          root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
+                          notchedOutline: "border-gray-300 dark:border-gray-600",
+                          focused: "",
+                        },
+                      }}
+                      InputLabelProps={{
+                        classes: {
+                          root: "text-gray-500 dark:text-gray-400",
+                          focused: "text-emerald-500 dark:text-emerald-400",
+                        },
+                      }}
+                      className="w-full"
+                    />
+                  </>
+                )}
+                {field.type === "select" && (
+                  <FormControl
+                    fullWidth
+                    variant="outlined"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "#4B5563", // Light mode border
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "#2563EB", // Border on hover
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#2563EB", // Border when focused
+                        },
+                      },
+                    }}
+                    className="rounded-md dark:border-gray-600"
+                  >
+                    <InputLabel className="font-medium text-gray-500 dark:text-gray-400">
+                      {capitalizeFirstLetter(field.name.replace("-", " "))}
+                      {field.required && <>*</>}
+                    </InputLabel>
+                    <Select
+                      value={formData[field.name] || ""}
+                      onChange={(e) =>
+                        handleInputChange(field.name, e.target.value)
+                      }
+                      required={field.required}
+                      label={capitalizeFirstLetter(field.name.replace("-", " "))}
+                      className="dark:text-gray-100 dark:bg-[#2D3236] bg-white"
+                    >
+                      {field.options?.map((option: any) => (
+                        <MenuItem key={option} value={option}>
+                          {option}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
+                {field.type === "year" && (
+                  <AutoComplete
+                    data={years}
+                    name={field.name}
+                    onChange={handleInputYearChange}
+                    selected={formData[field.name] || ""}
+                  />
+                )}
+                {field.type === "autocomplete" && (
+                  <AutoComplete
+                    data={field.options}
+                    name={field.name}
+                    onChange={handleInputAutoCompleteChange}
+                    selected={formData[field.name] || ""}
+                  />
+                )}
+                {field.type === "multi-select" && (
+                  <div className="w-full flex py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 flex-wrap gap-2 dark:bg-[#2D3236] bg-white">
+                    <Multiselect
+                      features={field.options}
+                      name={field.name}
+                      selectedFeatures={formData[field.name] || []}
+                      onChange={handleCheckboxChange}
+                    />
+                  </div>
+                )}
+
+                {field.type === "radio" && (
+                  <div className="w-full flex py-2 px-3 rounded-sm border border-gray-300 dark:border-gray-600 flex-wrap gap-2 dark:bg-[#2D3236] bg-white">
+                    <FormControl>
+                      <FormLabel className="text-gray-800 dark:text-gray-200">
+                        {capitalizeFirstLetter(field.name.replace("-", " "))}
+                      </FormLabel>
+                      <RadioGroup
+                        name={field.name}
+                        value={formData[field.name]} // Default to the first option
+                        //value={formData[field.name] || field.options[0]} // Default to the first option
+                        onChange={(e) =>
+                          handleInputChange(field.name, e.target.value)
+                        }
+                        className="space-y-0"
+                      >
+                        {field.options?.map((option: any, index: number) => (
+                          <FormControlLabel
+                            key={index}
+                            value={option}
+                            control={
+                              <Radio
+                                sx={{
+                                  color: "gray", // Unchecked color
+                                  "&.Mui-checked": {
+                                    color: "emerald", // Checked color
+                                  },
+                                }}
+                              />
+                            }
+                            label={option}
+                            className="text-gray-800 dark:text-gray-200"
+                          />
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                  </div>
+                )}
+                {field.type === "checkbox" &&
+                  field.options?.map((option: any, index: number) => (
+                    <label key={index}>
+                      <input
+                        type="checkbox"
+                        name={field.name}
+                        value={option}
+                        onChange={(e) =>
+                          handleInputChange(field.name, e.target.value)
+                        }
+                      />
+                      {option}
+                    </label>
+                  ))}
+                {field.type === "textarea" && (
+                  <div style={{ width: "100%", height: "300px", borderRadius: "8px", border: "1px", overflow: "hidden" }}>
+                    <ReactQuill
+                      value={formData[field.name] || ""}
+                      theme="snow"
+                      onChange={(value) => handleInputChange(field.name, value)}
+
+                      modules={modules} // Pass the custom toolbar modules
+                      placeholder={`Enter ${capitalizeFirstLetter(field.name.replace("-", " "))}*`}
+                      style={{ height: "100%", width: "100%", border: "0px", borderRadius: "8px" }}
+                    />
+                  </div>
+                )}
+
+                {field.type === "phone" && (
+                  <div className="flex w-full gap-1">
+                    <select
+                      className="border-gray-300 dark:border-gray-600 dark:bg-[#2D3236] dark:text-gray-100 text-sm py-2 px-1 rounded-sm border border-gray-300 dark:border-gray-600 w-[140px] lg:w-[200px]"
+                      value={countryCode}
+                      onChange={handleCountryCodeChange}
+                    >
+                      <option value="+254">Kenya (+254)</option>
+                      <option value="+213">Algeria (+213)</option>
+                      <option value="+244">Angola (+244)</option>
+                      <option value="+229">Benin (+229)</option>
+                      <option value="+267">Botswana (+267)</option>
+                      <option value="+226">Burkina Faso (+226)</option>
+                      <option value="+257">Burundi (+257)</option>
+                      <option value="+237">Cameroon (+237)</option>
+                      <option value="+238">Cape Verde (+238)</option>
+                      <option value="+236">
+                        Central African Republic (+236)
+                      </option>
+                      <option value="+235">Chad (+235)</option>
+                      <option value="+269">Comoros (+269)</option>
+                      <option value="+243">
+                        Democratic Republic of the Congo (+243)
+                      </option>
+                      <option value="+253">Djibouti (+253)</option>
+                      <option value="+20">Egypt (+20)</option>
+                      <option value="+240">Equatorial Guinea (+240)</option>
+                      <option value="+291">Eritrea (+291)</option>
+                      <option value="+268">Eswatini (+268)</option>
+                      <option value="+251">Ethiopia (+251)</option>
+                      <option value="+241">Gabon (+241)</option>
+                      <option value="+220">Gambia (+220)</option>
+                      <option value="+233">Ghana (+233)</option>
+                      <option value="+224">Guinea (+224)</option>
+                      <option value="+245">Guinea-Bissau (+245)</option>
+                      <option value="+225">Ivory Coast (+225)</option>
+                      <option value="+266">Lesotho (+266)</option>
+                      <option value="+231">Liberia (+231)</option>
+                      <option value="+218">Libya (+218)</option>
+                      <option value="+261">Madagascar (+261)</option>
+                      <option value="+265">Malawi (+265)</option>
+                      <option value="+223">Mali (+223)</option>
+                      <option value="+222">Mauritania (+222)</option>
+                      <option value="+230">Mauritius (+230)</option>
+                      <option value="+212">Morocco (+212)</option>
+                      <option value="+258">Mozambique (+258)</option>
+                      <option value="+264">Namibia (+264)</option>
+                      <option value="+227">Niger (+227)</option>
+                      <option value="+234">Nigeria (+234)</option>
+                      <option value="+242">Republic of the Congo (+242)</option>
+                      <option value="+250">Rwanda (+250)</option>
+                      <option value="+239">Sao Tome and Principe (+239)</option>
+                      <option value="+221">Senegal (+221)</option>
+                      <option value="+248">Seychelles (+248)</option>
+                      <option value="+232">Sierra Leone (+232)</option>
+                      <option value="+252">Somalia (+252)</option>
+                      <option value="+27">South Africa (+27)</option>
+                      <option value="+211">South Sudan (+211)</option>
+                      <option value="+249">Sudan (+249)</option>
+                      <option value="+255">Tanzania (+255)</option>
+                      <option value="+228">Togo (+228)</option>
+                      <option value="+216">Tunisia (+216)</option>
+                      <option value="+256">Uganda (+256)</option>
+                      <option value="+260">Zambia (+260)</option>
+                      <option value="+263">Zimbabwe (+263)</option>
+                    </select>
+
+                    <TextField
+                      required={field.required}
+                      id={field.name}
+                      label={capitalizeFirstLetter(field.name)}
+                      type="tel"
+                      value={phoneNumber}
+                      onChange={handleInputChangePhone}
+                      variant="outlined"
+                      placeholder={`Enter ${field.name}`}
+                      InputProps={{
+                        classes: {
+                          root: "bg-white dark:bg-[#2D3236] dark:text-gray-100",
+                          notchedOutline: "border-gray-300 dark:border-gray-600",
+                          focused: "",
+                        },
+                      }}
+                      InputLabelProps={{
+                        classes: {
+                          root: "text-gray-500 dark:text-gray-400",
+                          focused: "text-emerald-500 dark:text-emerald-400",
+                        },
+                      }}
+                      className="w-full"
+                    />
+                  </div>
+                )}
+
+                {field.type === "delivery" && (
+                  <div className="flex flex-col w-full gap-1">
+                    <button
                       onClick={handleOpenPopup}
                       className="py-3 w-full px-1 rounded-sm bg-emerald-600 text-white hover:bg-emerald-700">
                       <AddOutlinedIcon /> Add Delivery Option
                     </button>
-                 
 
-                  {showPopup && (
-                    
-                        <DeliveryOptions
-                          name={"delivery"}
-                          subcategory={selectedSubCategory || ""}
-                          onChange={handleInputOnChange}
-                          selected={formData["delivery"] || []}
-                          onSave={handleSave} // Pass the save handler to the child
-                        />
-                    
-                  )}
-                </div>
-              )}
-              
-                    {field.type === "propertyarea" && (
-                <div className="flex flex-col w-full gap-1">
+
+                    {showPopup && (
+
+                      <DeliveryOptions
+                        name={"delivery"}
+                        subcategory={selectedSubCategory || ""}
+                        onChange={handleInputOnChange}
+                        selected={formData["delivery"] || []}
+                        onSave={handleSave} // Pass the save handler to the child
+                      />
+
+                    )}
+                  </div>
+                )}
+
+                {field.type === "propertyarea" && (
+                  <div className="flex flex-col w-full gap-1">
                     <button
                       onClick={handleOpenPopupArea}
                       className="py-3 w-full px-1 rounded-sm bg-emerald-600 text-white hover:bg-emerald-700">
-                       🗺️ Advanced Property Mapping
+                      🗺️ Advanced Property Mapping
                     </button>
-                 
 
-                  {showPopupArea && (
-                    <div className="fixed inset-0 flex items-center justify-center bg-gray-200 z-50">
-                    
-                         <GoogleMapping name={"propertyarea"}
+
+                    {showPopupArea && (
+                      <div className="fixed inset-0 flex items-center justify-center bg-gray-200 z-50">
+
+                        <GoogleMapping name={"propertyarea"}
                           onChange={handleInputOnChange}
                           selected={formData["propertyarea"] || []}
-                          onSave={handleSaveArea}/>
-                        </div>
-                        
-                  
-                     
-                  )}
-                </div>
-                 
-              )}
-               {field.type === "notify" && (
-  <label className="flex items-center mt-2 mb-2 gap-2 dark:text-gray-400 text-green-600 text-sm">
-    <BellIcon className="w-4 h-4" />
-    {field.options}
-  </label>
-)}
-              {formErrors[field.name] && (
-                <p className="text-red-500 text-sm">{formErrors[field.name]}</p>
-              )}
-            </div>
-          ))}
-           
-          {type === "Create" && selectedCategory !== "Buyer Requests" && selectedSubCategory && (
-            <>
-              <div className="rounded-lg mt-4 p-0">
-            
-                         
-             
-               <div className="w-full mt-2 p-0 dark:text-gray-100 rounded-lg">
+                          onSave={handleSaveArea} />
+                      </div>
+
+
+
+                    )}
+                  </div>
+
+                )}
+                {field.type === "notify" && (
+                  <label className="flex items-center mt-2 mb-2 gap-2 dark:text-gray-400 text-green-600 text-sm">
+                    <BellIcon className="w-4 h-4" />
+                    {field.options}
+                  </label>
+                )}
+                {formErrors[field.name] && (
+                  <p className="text-red-500 text-sm">{formErrors[field.name]}</p>
+                )}
+              </div>
+            ))}
+
+            {type === "Create" && selectedCategory !== "Buyer Requests" && selectedSubCategory && (
+              <>
+                <div className="rounded-lg mt-4 p-0">
+
+
+
+                  <div className="w-full mt-2 p-0 dark:text-gray-100 rounded-lg">
                     <div className="flex flex-col mb-5">
                       <p className="text-gray-700 dark:text-gray-300 font-semibold text-xl">
                         Promote your ad
@@ -1927,11 +2046,10 @@ const finalData = baseData;
                           return (
                             <div
                               key={index}
-                              className={`mb-2 dark:bg-[#2D3236] border bg-white rounded-lg cursor-pointer ${
-                                activePackage === pack
-                                  ? "bg-[#F2FFF2] border-[#4DCE7A] border-2"
-                                  : ""
-                              }`}
+                              className={`mb-2 dark:bg-[#2D3236] border bg-white rounded-lg cursor-pointer ${activePackage === pack
+                                ? "bg-[#F2FFF2] border-[#4DCE7A] border-2"
+                                : ""
+                                }`}
                             >
                               {/*  <div
                                 className={`text-lg font-bold rounded-t-md text-white py-2 px-4 mb-4 flex flex-col items-center justify-center`}
@@ -1944,7 +2062,7 @@ const finalData = baseData;
                               <div
                                 onClick={() =>
                                   (!issamepackage && pack.name === "Free") ||
-                                  (issamepackage && pack.name === "Free" &&  remainingAds === 0)
+                                    (issamepackage && pack.name === "Free" && remainingAds === 0)
                                     ? handleClick(pack)
                                     : handleClick(pack)
                                 }
@@ -1973,7 +2091,7 @@ const finalData = baseData;
                                       ))}
                                   </ul>
                                 </div>
-              
+
                                 <div className="p-3">
                                   <div className="text-gray-600 mb-1">
                                     <div className="flex gap-2 text-sm">
@@ -1986,11 +2104,11 @@ const finalData = baseData;
                                       ) : (
                                         <>
                                           {(!issamepackage && pack.name === "Free") ||
-                                          (issamepackage &&
-                                            pack.name === "Free" &&
-                                            remainingAds === 0) ? (
+                                            (issamepackage &&
+                                              pack.name === "Free" &&
+                                              remainingAds === 0) ? (
                                             <div>
-                                            {/*   <div className="p-0 items-center flex rounded-full bg-grey-50">
+                                              {/*   <div className="p-0 items-center flex rounded-full bg-grey-50">
                                                 <p className="bg-gray-500 border rounded-xl p-2 text-white font-bold text-xs">
                                                   Disabled
                                                 </p>
@@ -2025,16 +2143,14 @@ const finalData = baseData;
                                             {pack.price.map((price: any, index: number) => (
                                               <li
                                                 key={index}
-                                                className={`flex items-center gap-0 ${
-                                                  index !== activeButton ? "hidden" : ""
-                                                }`}
+                                                className={`flex items-center gap-0 ${index !== activeButton ? "hidden" : ""
+                                                  }`}
                                               >
                                                 <p
-                                                  className={`font-semibold ${
-                                                    activePackage === pack
-                                                      ? "text-[#30AF5B]"
-                                                      : "text-gray-800 dark:text-gray-400"
-                                                  }`}
+                                                  className={`font-semibold ${activePackage === pack
+                                                    ? "text-[#30AF5B]"
+                                                    : "text-gray-800 dark:text-gray-400"
+                                                    }`}
                                                 >
                                                   Ksh {price.amount.toLocaleString()}/{" "}
                                                   {activeButtonTitle}
@@ -2052,21 +2168,19 @@ const finalData = baseData;
                                 <>
                                   <div className="flex flex-wrap justify-end items-center p-2">
                                     <button
-                                      className={`mr-2 mb-2 text-xs w-[80px] lg:w-[90px] lg:text-sm ${
-                                        activeButton === 0
-                                          ? "bg-gradient-to-b from-[#4DCE7A] to-[#30AF5B] text-white p-2 rounded-full"
-                                          : "border border-[#30AF5B] text-[#30AF5B] rounded-full p-2"
-                                      }`}
+                                      className={`mr-2 mb-2 text-xs w-[80px] lg:w-[90px] lg:text-sm ${activeButton === 0
+                                        ? "bg-gradient-to-b from-[#4DCE7A] to-[#30AF5B] text-white p-2 rounded-full"
+                                        : "border border-[#30AF5B] text-[#30AF5B] rounded-full p-2"
+                                        }`}
                                       onClick={() => handleButtonClick(0, "1 week")}
                                     >
                                       1 week
                                     </button>
                                     <button
-                                      className={`mr-2 mb-2 text-xs w-[80px] lg:w-[90px] lg:text-sm ${
-                                        activeButton === 1
-                                          ? "bg-gradient-to-b from-[#4DCE7A] to-[#30AF5B] text-white p-2 rounded-full"
-                                          : "border border-[#30AF5B] text-[#30AF5B] rounded-full p-2"
-                                      }`}
+                                      className={`mr-2 mb-2 text-xs w-[80px] lg:w-[90px] lg:text-sm ${activeButton === 1
+                                        ? "bg-gradient-to-b from-[#4DCE7A] to-[#30AF5B] text-white p-2 rounded-full"
+                                        : "border border-[#30AF5B] text-[#30AF5B] rounded-full p-2"
+                                        }`}
                                       onClick={() => handleButtonClick(1, "1 month")}
                                     >
                                       1 month
@@ -2148,9 +2262,9 @@ const finalData = baseData;
                     </p>
                     */}
                   </div>
-              
-              </div>
-              {/* 
+
+                </div>
+                {/* 
               <div className="rounded-lg mt-4 shadow-lg border">
                 <div className="m-3">
                   <div className="items-center flex">
@@ -2404,43 +2518,43 @@ const finalData = baseData;
                   )}
                 </div>
               </div>*/}
-            </>
-          )}
- <button
-  disabled={loading}
-                      onClick={handleSubmit}
-                      className="py-3 w-full px-1 mt-2 items-center justify-center rounded-sm bg-emerald-600 text-white hover:bg-emerald-700">
-                       <div className="flex w-full justify-center gap-1 items-center">
-              {loading && <CircularProgressWithLabel value={uploadProgress} />}
+              </>
+            )}
+            <button
+              disabled={loading}
+              onClick={handleSubmit}
+              className="py-3 w-full px-1 mt-2 items-center justify-center rounded-sm bg-emerald-600 text-white hover:bg-emerald-700">
+              <div className="flex w-full justify-center gap-1 items-center">
+                {loading && <CircularProgressWithLabel value={uploadProgress} />}
 
-              {loading ? "Submitting..." : `${type} Ad `}
-            </div>
-            </button>
-         
-          <p className="mt-2 text-xs text-gray-600 dark:text-gray-500 text-center">
-            By clicking on Create Ad, you accept the{" "}
-            <span onClick={() => handleOpenTerms()} className="text-emerald-600 cursor-pointer underline">
-              Terms of Use
-            </span>
-          </p>
-        </div>
-      </div>
-
-
-      {loading && (<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
-            <div className="justify-center items-center dark:text-gray-300 rounded-lg p-1 lg:p-6 w-full md:max-w-3xl lg:max-w-4xl h-[90vh] flex flex-col">
-              {/* Header */}
-              <div className="flex gap-1 text-[#D1D5DB] items-center">
-              {/*<CircularProgressWithLabel value={uploadProgress} />*/}
-              <CircularProgress  sx={{ color: '#D1D5DB' }}/>
-               {type ==="Update" ? "Updating Ad...":"Creating Ad..."} 
+                {loading ? "Submitting..." : `${type} Ad `}
               </div>
+            </button>
+
+            <p className="mt-2 text-xs text-gray-600 dark:text-gray-500 text-center">
+              By clicking on Create Ad, you accept the{" "}
+              <span onClick={() => handleOpenTerms()} className="text-emerald-600 cursor-pointer underline">
+                Terms of Use
+              </span>
+            </p>
+          </div>
+        </div>
+
+
+        {loading && (<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
+          <div className="justify-center items-center dark:text-gray-300 rounded-lg p-1 lg:p-6 w-full md:max-w-3xl lg:max-w-4xl h-[90vh] flex flex-col">
+            {/* Header */}
+            <div className="flex gap-1 text-[#D1D5DB] items-center">
+              {/*<CircularProgressWithLabel value={uploadProgress} />*/}
+              <CircularProgress sx={{ color: '#D1D5DB' }} />
+              {type === "Update" ? "Updating Ad..." : "Creating Ad..."}
             </div>
-          </div>)} 
+          </div>
+        </div>)}
       </>)}
 
 
-     
+
 
     </>
   );
